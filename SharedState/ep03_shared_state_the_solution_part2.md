@@ -39,3 +39,28 @@ let cache: LockIsolated<NSCache<NSString, Object<T>>
 SwiftUI.Dismiss하고 Dependency.Dismiss하고 동작은 유사하지만 다름. 하지만 SwiftUI.Dismiss가 발생해도 리듀서 상태값은 변경되고 Dependency.Dismiss되도 뷰는 닫힘.
 뷰와 로직을 우리가 모르게 잘 바인딩했을텐데 이런 기술들은 눈여겨보면 배울게 많을 거 같음.
 
+
+---- 
+잡담시간
+@Namespace는 뷰의 계층에서의 ID이다. 백단에서 사용하는 id같은 느낌
+
+``` swift
+        let task = Task {
+          if Task.isCancelled {
+            print("Hello?") <- 호출됨.
+          }
+        }
+        
+        1, 2번의 경우에서만 호출되긴함.
+        1. 
+        task.cancel
+        
+        2.
+        Task {
+          task.cancel() 
+        }
+```
+        
+        결론: 의미가 있을 수 있다.
+        
+autoresizingMask -> OptionalSet이랑 연관됨. 한번 정리하면 좋겠음.
