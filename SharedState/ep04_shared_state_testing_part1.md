@@ -26,3 +26,32 @@ changeTracker를 옵셔널로 변경하여 트래킹 환경이 아닐때 snapsho
 @홍승현
 
 @윤용운
+값 타입처럼 살기 - 참조 편
+
+ 참조는 복사할 수 없기 때문에 값이 변경하기 전과 후가 없습니다. 비교가 불가능하기 때문에 테스트가 불가능함.
+(복사는 가능하다. 새로운 객체를 생성함으로써 가능해짐, 그리고 테스트의 경우, 모든 필드를 비교하면 되긴 함.)
+
+(값타입을 사용할 경우, 비교적 안전하게 사용할 수 있는장치가 많음, 하지만 오히려 잘못사용하면 성능적으로 손해를 보게 된다는걸 잊지말아야함.)
+
+모든 필드를 비교하더라도 문제가 발생 참조의 대한 동등성은 비교를 했지만, 피처의 상태에선 동등성이 고려되지 않기 때문 (정확하게 의미 전달이 안됨.)
+
+Swift는 스레드 안전성과 로컬 범위 안정성을 모두 갖춘 방식으로 글로벌을 처리할 수 있는 도구를 제공하는데 바로 TaskLocals입니다.
+
+ SharedLocals.isAsserting은 TestStore를 사용하는지에 대한 플래그값  후행 클로저를 실행시켰을 때, 원본 값이 변경되면 안되고 snapshot이 변경되어야함.
+
+But we need an additional trick. We want to snapshot the current value before making the mutation, but also we only want to do it for the first mutation:
+이해가 안감.
+``` swift
+set {
+  if SharedLocals.isAsserting {
+    self.snapshot = newValue
+  } else {
+    if self.snapshot == nil {
+      self.snapshot = self.currentValue
+    }
+    self.currentValue = newValue
+  }
+}
+``` 
+
+이번 세션은 설명이 잘 이해가 안감. 다시 정리 필요.
