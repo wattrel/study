@@ -53,18 +53,28 @@ Swift는 스레드 안전성과 로컬 범위 안정성을 모두 갖춘 방식�
  SharedLocals.isAsserting은 TestStore를 사용하는지에 대한 플래그값  후행 클로저를 실행시켰을 때, 원본 값이 변경되면 안되고 snapshot이 변경되어야함.
 
 But we need an additional trick. We want to snapshot the current value before making the mutation, but also we only want to do it for the first mutation:
-이해가 안감.
+
+isAsserting이 참이면 TestStore.send 후행 클로저가 실행중이라는 얘기이다.
+그렇다면 왜 false일때도 nil이라면 snapshot을 저장할까? 그건 TestStore에 넣는 live reducer는 정상적으로 작동해야하기 때문이다. 추가적으로 live app의 경우 Shared 비교를 위한 로직이 불필요하기 때문에 아래와 같이 추가적인 로직이 들어가게 된다. Good :)f
 ``` swift
 set {
   if SharedLocals.isAsserting {
     self.snapshot = newValue
   } else {
-    if self.snapshot == nil {
+    if SharedLocals.isTracking, self.snapshot == nil {
       self.snapshot = self.currentValue
     }
     self.currentValue = newValue
+    SharedLocals.changeTracker?()
   }
 }
 ``` 
 
-이번 세션은 설명이 잘 이해가 안감. 다시 정리 필요.
+@TaskLocal의 경우, 연관 없는 값을 전달해야하지만, 구조적 프로그래밍이 가능하다면 사용하면 좋음.
+당연하게도 컴퓨티드 프로퍼티를 만들수도 있음
+``` swift
+enum SharedLocals {
+  @TaskLocal var trackingHandler: (() -> Void)? = nil
+  @TaskLocal var isTracking: Bool { trackingHandler == nil }
+} 
+``` 
